@@ -1,4 +1,4 @@
-# Has Many
+# Has one
 
 This example shows the relationship between `user` and his `books` and all the operations that you can perform.
 ```go
