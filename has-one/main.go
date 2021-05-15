@@ -44,23 +44,23 @@ func main() {
 	// or if you want to skip all relationships
 	db.Omit(clause.Associations).Create(&user)
 
-	//////////// 4- find a user with his credit card (eager loading) ////////////
+	//////////// 3- find a user with his credit card (eager loading) ////////////
 	var dbUser User
 	db.Preload("CreditCard").Where("name = ?", "john").First(&dbUser)
 	fmt.Println(dbUser.Name)
 	fmt.Println(dbUser.CreditCard)
 
-	//////////// 5- update user's credit card ////////////
+	//////////// 4- update user's credit card ////////////
 	dbUser.CreditCard.Number = 555555555555444
 	// when updating a relationship you must use `db.Session`
 	db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&dbUser)
 
-	//////////// 6- finding a user's credit card ////////////
+	//////////// 5- finding a user's credit card ////////////
 	var creditCard CreditCard
 	db.Model(&dbUser).Where("number = ?", 5555555555554444).Association("CreditCard").Find(&creditCard)
 	fmt.Println(creditCard.ID)
 
-	//////////// 8- delete a user's credit card when deleting the user ////////////
+	//////////// 6- delete a user's credit card when deleting the user ////////////
 	// first let's create a user called `mike`
 	var userMike = User{
 		Name:       "mike",

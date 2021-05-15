@@ -16,15 +16,15 @@ import (
 // User represents users model
 type User struct {
 	gorm.Model
-	Name  string
-	Books []Book
+	Name       string
+	CreditCard CreditCard // the relationship attribute-1
 }
 
-// Book represents books model
-type Book struct {
+// CreditCard represents credit card model
+type CreditCard struct {
 	gorm.Model
-	Title  string
-	UserID uint
+	Number uint
+	UserID uint // the relationship attribute-2
 }
 
 func main() {
@@ -34,63 +34,46 @@ func main() {
 		log.Fatal(err)
 	}
 
-	db.AutoMigrate(User{}, Book{})
+	db.AutoMigrate(User{}, CreditCard{})
 
-	//////////// 1- create a user with his books ////////////
+	//////////// 1- create a user with his credit card ////////////
 	var user = User{
-		Name: "john",
-		Books: []Book{
-			{Title: "my first book"},
-			{Title: "my second book"},
-		},
+		Name:       "john",
+		CreditCard: CreditCard{Number: 4242424242424242},
 	}
 	db.Create(&user)
 
-	//////////// 2- skip the creation of the books while creating the user ////////////
-	db.Omit("Books").Create(&user)
+	//////////// 2- skip the creation of the credit card while creating the user ////////////
+	db.Omit("CreditCard").Create(&user)
 	// or if you want to skip all relationships
 	db.Omit(clause.Associations).Create(&user)
 
-	//////////// 3- append to the user's books ////////////
-	db.Model(&user).Association("Books").Append([]Book{
-		{Title: "my third book"},
-		{Title: "my fourth book"},
-	})
-
-	//////////// 4- find a user with his books (eager loading) ////////////
+	//////////// 3- find a user with his credit card (eager loading) ////////////
 	var dbUser User
-	db.Preload("Books").Where("name = ?", "john").First(&dbUser)
+	db.Preload("CreditCard").Where("name = ?", "john").First(&dbUser)
 	fmt.Println(dbUser.Name)
-	fmt.Println(dbUser.Books)
+	fmt.Println(dbUser.CreditCard)
 
-	//////////// 5- update user's books ////////////
-	dbUser.Books[0].Title = "updated book title" // update the title of the first record in books
+	//////////// 4- update user's credit card ////////////
+	dbUser.CreditCard.Number = 555555555555444
 	// when updating a relationship you must use `db.Session`
 	db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&dbUser)
 
-	//////////// 6- finding a user's books ////////////
-	var books []Book
-	db.Model(&dbUser).Where("title = ?", "updated book title").Association("Books").Find(&books)
-	// print the id of the first record of found records
-	fmt.Println(books[0].ID)
+	//////////// 5- finding a user's credit card ////////////
+	var creditCard CreditCard
+	db.Model(&dbUser).Where("number = ?", 5555555555554444).Association("CreditCard").Find(&creditCard)
+	fmt.Println(creditCard.ID)
 
-	//////////// 7- count a user's books ////////////
-	booksCount := db.Model(&dbUser).Association("Books").Count()
-	fmt.Println(booksCount)
-
-	//////////// 8- delete a user's books when deleting the user ////////////
+	//////////// 6- delete a user's credit card when deleting the user ////////////
 	// first let's create a user called `mike`
 	var userMike = User{
-		Name: "john",
-		Books: []Book{
-			{Title: "book one"},
-			{Title: "book two"},
-		},
+		Name:       "mike",
+		CreditCard: CreditCard{Number: 4111111111111111},
 	}
 	db.Create(&userMike)
-	// delete user's books when deleting user
-	db.Select("Books").Delete(&User{}, userMike.ID)
+	// delete user's credit card when deleting user
+	db.Select("CreditCard").Delete(&userMike)
 	// or if you want to delete all relationships
-	db.Select(clause.Associations).Delete(&User{}, userMike.ID)
+	db.Select(clause.Associations).Delete(&userMike)
 }
 ```
