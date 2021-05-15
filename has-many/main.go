@@ -77,7 +77,7 @@ func main() {
 	//////////// 8- delete a user's books when deleting the user ////////////
 	// first let's create a user called `mike`
 	var userMike = User{
-		Name: "john",
+		Name: "mike",
 		Books: []Book{
 			{Title: "book one"},
 			{Title: "book two"},
@@ -85,7 +85,7 @@ func main() {
 	}
 	db.Create(&userMike)
 	// delete user's books when deleting user
-	db.Select("Books").Delete(&User{}, userMike.ID)
+	db.Select("Books").Delete(&userMike)
 	// or if you want to delete all relationships
-	db.Select(clause.Associations).Delete(&User{}, userMike.ID)
+	db.Select(clause.Associations).Delete(&userMike)
 }
