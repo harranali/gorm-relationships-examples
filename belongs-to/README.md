@@ -1,4 +1,4 @@
-# Has Many
+# Belongs To
 
 This example shows the relationship between `user` and his `company` and some of the operations that you can perform.
 ```go
