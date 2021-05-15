@@ -1,6 +1,6 @@
 # Has Many
 
-This example shows the relationship between `user` and his `books` and all the operations that you can perform.
+This example shows the relationship between `user` and his `company` and some of the operations that you can perform.
 ```go
 package main
 
@@ -10,21 +10,21 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
+
+// Company represents company model
+type Company struct {
+	gorm.Model
+	Name string
+}
 
 // User represents users model
 type User struct {
 	gorm.Model
-	Name  string
-	Books []Book
-}
-
-// Book represents books model
-type Book struct {
-	gorm.Model
-	Title  string
-	UserID uint
+	Name      string
+	// the relationship attribs
+	CompanyID uint
+	Company   Company
 }
 
 func main() {
@@ -34,63 +34,26 @@ func main() {
 		log.Fatal(err)
 	}
 
-	db.AutoMigrate(User{}, Book{})
+	db.AutoMigrate(User{}, Company{})
 
-	//////////// 1- create a user with his books ////////////
-	var user = User{
-		Name: "john",
-		Books: []Book{
-			{Title: "my first book"},
-			{Title: "my second book"},
-		},
-	}
+	//////////// 1- create a user of the company ////////////
+	// first create a company
+	var company = Company{Name: "AZ Company"}
+	db.Create(&company)
+	// next ceate a user of the company
+	var user = User{Name: "john", CompanyID: company.ID}
 	db.Create(&user)
 
-	//////////// 2- skip the creation of the books while creating the user ////////////
-	db.Omit("Books").Create(&user)
-	// or if you want to skip all relationships
-	db.Omit(clause.Associations).Create(&user)
-
-	//////////// 3- append to the user's books ////////////
-	db.Model(&user).Association("Books").Append([]Book{
-		{Title: "my third book"},
-		{Title: "my fourth book"},
-	})
-
-	//////////// 4- find a user with his books (eager loading) ////////////
+	//////////// 4- find a user and load his company (eager loading) ////////////
 	var dbUser User
-	db.Preload("Books").Where("name = ?", "john").First(&dbUser)
+	db.Preload("Company").Where("name = ?", "john").First(&dbUser)
 	fmt.Println(dbUser.Name)
-	fmt.Println(dbUser.Books)
+	fmt.Println(dbUser.Company)
 
-	//////////// 5- update user's books ////////////
-	dbUser.Books[0].Title = "updated book title" // update the title of the first record in books
+	//////////// 5- update user's Company ////////////
+	dbUser.Company.Name = "A TO Z Company" // update the name of the company
 	// when updating a relationship you must use `db.Session`
 	db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&dbUser)
 
-	//////////// 6- finding a user's books ////////////
-	var books []Book
-	db.Model(&dbUser).Where("title = ?", "updated book title").Association("Books").Find(&books)
-	// print the id of the first record of found records
-	fmt.Println(books[0].ID)
-
-	//////////// 7- count a user's books ////////////
-	booksCount := db.Model(&dbUser).Association("Books").Count()
-	fmt.Println(booksCount)
-
-	//////////// 8- delete a user's books when deleting the user ////////////
-	// first let's create a user called `mike`
-	var userMike = User{
-		Name: "john",
-		Books: []Book{
-			{Title: "book one"},
-			{Title: "book two"},
-		},
-	}
-	db.Create(&userMike)
-	// delete user's books when deleting user
-	db.Select("Books").Delete(&User{}, userMike.ID)
-	// or if you want to delete all relationships
-	db.Select(clause.Associations).Delete(&User{}, userMike.ID)
 }
 ```

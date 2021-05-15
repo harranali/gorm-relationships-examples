@@ -13,14 +13,14 @@ import (
 type User struct {
 	gorm.Model
 	Name  string
-	Books []Book
+	Books []Book // the relationship attribute-1
 }
 
 // Book represents books model
 type Book struct {
 	gorm.Model
 	Title  string
-	UserID uint
+	UserID uint // the relationship attribute-2
 }
 
 func main() {
