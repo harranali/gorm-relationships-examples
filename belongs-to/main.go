@@ -39,15 +39,14 @@ func main() {
 	var user = User{Name: "john", CompanyID: company.ID}
 	db.Create(&user)
 
-	//////////// 4- find a user and load his company (eager loading) ////////////
+	//////////// 2- find a user and load his company (eager loading) ////////////
 	var dbUser User
 	db.Preload("Company").Where("name = ?", "john").First(&dbUser)
 	fmt.Println(dbUser.Name)
 	fmt.Println(dbUser.Company)
 
-	//////////// 5- update user's Company ////////////
+	//////////// 3- update user's Company ////////////
 	dbUser.Company.Name = "A TO Z Company" // update the name of the company
 	// when updating a relationship you must use `db.Session`
 	db.Session(&gorm.Session{FullSaveAssociations: true}).Updates(&dbUser)
-
 }
