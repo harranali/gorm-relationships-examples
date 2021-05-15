@@ -1,2 +1,3 @@
 has-many/tmp/*
 belongs-to/tmp/*
+has-one/tmp/*
