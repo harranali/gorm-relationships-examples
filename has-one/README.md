@@ -1,6 +1,6 @@
 # Has one
 
-This example shows the relationship between `user` and his `books` and all the operations that you can perform.
+This example shows the relationship between `user` and his `creditCards` and some of the operations that you can perform.
 ```go
 package main
 
