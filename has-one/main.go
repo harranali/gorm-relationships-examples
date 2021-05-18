@@ -57,7 +57,7 @@ func main() {
 
 	//////////// 5- finding a user's credit card ////////////
 	var creditCard CreditCard
-	db.Model(&dbUser).Where("number = ?", 5555555555554444).Association("CreditCard").Find(&creditCard)
+	db.Model(&dbUser).Where("number = ?", 555555555555444).Association("CreditCard").Find(&creditCard)
 	fmt.Println(creditCard.ID)
 
 	//////////// 6- delete a user's credit card when deleting the user ////////////
